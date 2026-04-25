@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PromptPal — The Duolingo of AI Prompting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+  @property --split-position { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050505;
+    --bg-2: #0b0b0c;
+    --ink: #f5f1ea;
+    --ink-dim: #a7a29a;
+    --ink-faint: #5b5852;
+    --hair: rgba(255,255,255,0.08);
+    --hair-strong: rgba(255,255,255,0.14);
+
+    --amber: #f6b54a;
+    --amber-2: #ffdf8a;
+    --ember: #ff7a45;
+    --violet: #a88bff;
+    --violet-2: #d4b8ff;
+    --mint: #7ee0a8;
+
+    /* DUO palette (from the real app) */
+    --duo-green: #58CC02;
+    --duo-green-dark: #46A302;
+    --duo-green-soft: #D7FFB8;
+    --duo-green-bg: #E5FFCC;
+    --duo-blue: #1CB0F6;
+    --duo-blue-dark: #1899D6;
+    --duo-orange: #FF9600;
+    --duo-orange-dark: #E08600;
+    --duo-red: #FF4B4B;
+    --duo-gold: #FFC800;
+    --duo-ink: #3C3C3C;
+    --duo-ink-soft: #777777;
+    --duo-bg: #FFFFFF;
+    --duo-bg-2: #F7F7F7;
+    --duo-hair: #E5E5E5;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -20vh -10vw auto -10vw;
+    height: 80vh;
+    background:
+      radial-gradient(40% 55% at 20% 35%, rgba(88,204,2,0.12), transparent 70%),
+      radial-gradient(45% 60% at 82% 20%, rgba(28,176,246,0.12), transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  main, header, footer { position: relative; z-index: 1; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- NAV ---------- */
+  .nav-wrap { position: sticky; top: 16px; z-index: 50; padding: 0 20px; display: flex; justify-content: center; }
+  nav.pill {
+    width: min(1120px, 100%);
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px;
+    padding: 10px 12px 10px 22px;
+    border-radius: 999px;
+    background: rgba(14,14,15,0.72);
+    backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--hair-strong);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .brand .mark {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: linear-gradient(160deg, #7ee845 0%, #58CC02 55%, #3A8B01 100%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15) inset, 0 6px 18px rgba(88,204,2,0.35);
+    position: relative;
+  }
+  .brand .mark::after {
+    content: ""; position: absolute; inset: 5px; border-radius: 5px;
+    background: radial-gradient(100% 100% at 35% 30%, rgba(255,255,255,0.8), transparent 55%);
+    mix-blend-mode: overlay;
+  }
+  .nav-links { justify-self: center; display: flex; gap: 4px; }
+  .nav-links a { color: var(--ink-dim); text-decoration: none; padding: 8px 14px; border-radius: 999px; font-size: 14.5px; transition: color .2s, background .2s; }
+  .nav-links a:hover { color: var(--ink); background: rgba(255,255,255,0.04); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 999px;
+    border: 1px solid transparent;
+    font: 500 14.5px/1 "Geist", sans-serif; letter-spacing: -0.005em;
+    cursor: pointer; text-decoration: none;
+    transition: transform .15s ease, background .2s, border-color .2s, color .2s;
+  }
+  .btn-primary { background: #fafaf7; color: #0b0b0b; }
+  .btn-primary:hover { transform: translateY(-1px); background: #fff; }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--hair-strong); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.04); }
+
+  @media (max-width: 780px) {
+    .nav-links { display: none; }
+    nav.pill { grid-template-columns: 1fr auto; padding: 8px 8px 8px 18px; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 80px 0 40px; text-align: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--hair-strong);
+    font-size: 13px; color: var(--ink-dim);
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--duo-green); box-shadow: 0 0 10px var(--duo-green); }
+
+  h1.hero-title {
+    font-family: "Instrument Serif", "Times New Roman", serif; font-weight: 400;
+    font-size: clamp(52px, 9vw, 128px); line-height: 0.96; letter-spacing: -0.035em;
+    margin: 28px auto 24px; max-width: 14ch;
+  }
+  h1.hero-title em {
+    font-style: italic;
+    background: linear-gradient(110deg, #aef77a 0%, #58CC02 32%, #1CB0F6 68%, #a88bff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .hero-sub { max-width: 560px; margin: 0 auto 36px; color: var(--ink-dim); font-size: clamp(16px, 1.4vw, 19px); line-height: 1.55; text-wrap: pretty; }
+
+  .cta-row { display: inline-flex; gap: 12px; align-items: center; }
+  .cta-row .btn-primary { padding: 14px 22px; font-size: 15px; }
+
+  .integrations {
+    margin: 28px auto 0; max-width: 760px; padding: 22px 24px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .integrations .label { color: var(--ink-dim); font-size: 14px; }
+  .integrations .row { display: flex; justify-content: center; align-items: center; gap: 36px; flex-wrap: wrap; }
+  .integrations .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: #eae6df; font-size: 20px; font-weight: 500; letter-spacing: -0.01em;
+    opacity: 0.88; transition: opacity .2s;
+  }
+  .integrations .logo:hover { opacity: 1; }
+  .integrations .logo .mk { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .integrations .logo.grok .mk { background: #fff; color: #0b0b0b; border-radius: 5px; }
+  .integrations .logo.sora .sub { font-size: 10px; letter-spacing: 0.18em; color: var(--ink-dim); margin-left: 4px; align-self: flex-end; padding-bottom: 4px; }
+  @media (max-width: 640px) { .integrations .row { gap: 22px; } .integrations .logo { font-size: 17px; } }
+
+  .hero-stage { margin-top: 56px; position: relative; height: 620px; display: flex; justify-content: center; align-items: flex-end; }
+  .hero-stage::before {
+    content: ""; position: absolute; inset: auto 0 -40px 0; height: 60%;
+    background: radial-gradient(60% 100% at 50% 100%, rgba(88,204,2,0.22), transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ---------- PHONE ---------- */
+  .phone {
+    position: relative; width: 300px; height: 610px; border-radius: 46px;
+    background: linear-gradient(180deg, #1a1a1c, #0d0d0e);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      inset 0 0 0 3px #000,
+      0 30px 80px rgba(0,0,0,0.6),
+      0 0 0 2px #2a2a2b;
+    padding: 10px;
+  }
+  .phone .screen {
+    position: relative; width: 100%; height: 100%;
+    border-radius: 36px; overflow: hidden; color: var(--duo-ink);
+    background: var(--duo-bg);
+  }
+  .phone .notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 28px; background: #000; border-radius: 16px; z-index: 50;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section { padding: 100px 0; position: relative; }
+  .section-eyebrow { display: flex; justify-content: center; margin-bottom: 18px; }
+  .section-eyebrow span { padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid var(--hair); font-size: 13px; color: var(--ink-dim); }
+
+  h2.section-title {
+    font-family: "Instrument Serif", serif; font-weight: 400;
+    font-size: clamp(42px, 6vw, 84px); line-height: 1.02; letter-spacing: -0.03em;
+    text-align: center; margin: 0 auto; max-width: 14ch;
+  }
+  h2.section-title em {
+    font-style: italic;
+    background: linear-gradient(110deg, #aef77a 0%, var(--duo-green) 40%, var(--duo-blue) 85%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .section-lead { text-align: center; color: var(--ink-dim); max-width: 620px; margin: 22px auto 0; font-size: 17px; line-height: 1.55; }
+
+  .stats-card {
+    margin: 60px auto 0; max-width: 1040px; padding: 56px 48px; border-radius: 28px;
+    background:
+      radial-gradient(100% 160% at 50% -20%, rgba(88,204,2,0.08), transparent 60%),
+      linear-gradient(180deg, #0f0f10, #0a0a0b);
+    border: 1px solid var(--hair);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+  }
+  .stat { text-align: center; }
+  .stat .num { font-family: "Instrument Serif", serif; font-size: clamp(64px, 8vw, 108px); line-height: 1; letter-spacing: -0.03em; }
+  .stat:nth-child(1) .num { color: #aef77a; }
+  .stat:nth-child(2) .num { color: #ffd960; }
+  .stat:nth-child(3) .num { color: #8ed3ff; }
+  .stat .label { margin-top: 14px; font-size: 17px; font-weight: 500; }
+  .stat .desc { margin-top: 8px; color: var(--ink-dim); font-size: 14px; line-height: 1.55; max-width: 26ch; margin-left: auto; margin-right: auto; }
+  @media (max-width: 820px) { .stats-card { grid-template-columns: 1fr; padding: 36px 28px; gap: 36px; } }
+
+  .feature { padding: 80px 0; }
+  .f-grid { max-width: 1200px; margin: 0 auto; padding: 0 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .feature .copy .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--hair);
+    font-size: 12.5px; color: var(--ink-dim);
+    font-family: "Geist Mono", monospace; letter-spacing: 0.02em;
+  }
+  .feature .copy .badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .feature .copy h3 {
+    font-family: "Instrument Serif", serif; font-weight: 400;
+    font-size: clamp(40px, 5vw, 68px); line-height: 1.02; letter-spacing: -0.03em;
+    margin: 18px 0 18px; max-width: 12ch;
+  }
+  .feature.f-green .copy h3 em { font-style: italic; background: linear-gradient(110deg, #aef77a, var(--duo-green)); -webkit-background-clip: text; color: transparent; }
+  .feature.f-blue  .copy h3 em { font-style: italic; background: linear-gradient(110deg, #8ed3ff, var(--duo-blue)); -webkit-background-clip: text; color: transparent; }
+  .feature.f-orange .copy h3 em { font-style: italic; background: linear-gradient(110deg, #ffd180, var(--duo-orange)); -webkit-background-clip: text; color: transparent; }
+  .feature .copy p { color: var(--ink-dim); font-size: 17px; line-height: 1.6; max-width: 46ch; margin: 0 0 28px; }
+  .feature .copy .btn { padding: 12px 18px; font-size: 14.5px; }
+  .feature .visual { position: relative; min-height: 580px; display: flex; justify-content: center; align-items: center; }
+  .feature .visual::before { content: ""; position: absolute; inset: 0; pointer-events: none; }
+  .feature.f-green  .visual::before { background: radial-gradient(55% 55% at 55% 50%, rgba(88,204,2,0.16), transparent 70%); }
+  .feature.f-blue   .visual::before { background: radial-gradient(55% 55% at 45% 50%, rgba(28,176,246,0.16), transparent 70%); }
+  .feature.f-orange .visual::before { background: radial-gradient(55% 55% at 55% 50%, rgba(255,150,0,0.16), transparent 70%); }
+  @media (max-width: 880px) { .f-grid { grid-template-columns: 1fr; gap: 20px; } .feature { padding: 60px 0; } .feature .visual { min-height: 520px; } }
+
+  .bottom-cta { padding: 120px 0 100px; text-align: center; position: relative; }
+  .bottom-cta::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 80% at 50% 0%, rgba(88,204,2,0.20), transparent 55%),
+      radial-gradient(40% 60% at 50% 100%, rgba(28,176,246,0.18), transparent 55%);
+    pointer-events: none;
+  }
+  .bottom-cta > .wrap { position: relative; }
+  .bottom-cta h2 {
+    font-family: "Instrument Serif", serif; font-weight: 400;
+    font-size: clamp(54px, 8vw, 120px); line-height: 0.98; letter-spacing: -0.035em;
+    margin: 22px auto 18px; max-width: 13ch;
+  }
+  .bottom-cta h2 em { font-style: italic; background: linear-gradient(110deg, #aef77a, var(--duo-green) 50%, var(--duo-blue)); -webkit-background-clip: text; color: transparent; }
+  .bottom-cta p { color: var(--ink-dim); font-size: 18px; margin: 0 auto 32px; max-width: 40ch; }
+
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--hair); color: var(--ink-faint); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--ink-dim); text-decoration: none; margin-left: 20px; }
+
+  .fade-up {
+    opacity: 0; transform: translateY(24px);
+    animation: fade-up linear both;
+    animation-timeline: view(); animation-range: entry 0% cover 30%;
+  }
+  @keyframes fade-up { to { opacity: 1; transform: none; } }
+
+  /* =================================================== */
+  /* ==========       DUOLINGO-STYLE SCREENS     ======== */
+  /* =================================================== */
+  .duo {
+    font-family: "Geist", system-ui, sans-serif;
+    height: 100%; color: var(--duo-ink);
+    position: relative; background: #fff;
+    display: flex; flex-direction: column;
+  }
+  .duo * { font-feature-settings: normal; }
+  .duo-status {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 46px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 26px 0;
+    font-size: 13px; font-weight: 600; color: #111;
+    z-index: 5;
+  }
+  .duo-gear {
+    position: absolute; top: 48px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: radial-gradient(120% 120% at 30% 25%, #5ec8ff, #1CB0F6 60%, #0e6ca3 100%);
+    box-shadow: 0 3px 0 #0a4f78, 0 6px 14px rgba(0,0,0,0.18);
+    display: grid; place-items: center;
+    color: #fff;
+    z-index: 6;
+  }
+  .duo-topbar {
+    padding: 60px 18px 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .duo-x {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    color: #B0B0B0; font-size: 20px; font-weight: 600; cursor: pointer;
+  }
+  .duo-progress {
+    flex: 1; height: 16px; border-radius: 999px;
+    background: #E5E5E5; overflow: hidden; position: relative;
+    box-shadow: inset 0 2px 0 rgba(0,0,0,0.04);
+  }
+  .duo-progress .fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(180deg, #7ee045 0%, var(--duo-green) 100%);
+    position: relative;
+  }
+  .duo-progress .fill::after {
+    content: ""; position: absolute; left: 6px; right: 6px; top: 3px; height: 3px;
+    background: rgba(255,255,255,0.55); border-radius: 999px;
+  }
+  .duo-heart { color: var(--duo-orange); font-size: 18px; }
+
+  .duo-btn-primary {
+    background: var(--duo-green);
+    color: #fff; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 14px 18px;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--duo-green-dark);
+    text-align: center; font-size: 14px;
+  }
+  .duo-btn-ghost {
+    color: #B0B0B0; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+    text-align: center; font-size: 13px; padding: 12px;
+  }
+
+  /* ---- HERO: Challenge screen (One Shoot It) ---- */
+  .duo-chal { flex: 1; display: flex; flex-direction: column; }
+  .duo-chal .level-pill {
+    align-self: center; margin-top: 4px;
+    padding: 4px 12px; border-radius: 999px;
+    background: var(--duo-green-bg); color: var(--duo-green-dark);
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+  }
+  .duo-chal .h {
+    padding: 10px 20px 4px;
+    font-size: 26px; font-weight: 800; text-align: center; letter-spacing: -0.01em;
+    color: #222;
+  }
+  .duo-chal .sub {
+    padding: 0 20px 10px;
+    font-size: 12px; color: var(--duo-ink-soft); text-align: center; line-height: 1.4;
+  }
+  .duo-chal .match-card {
+    margin: 6px 14px 0;
+    padding: 10px 12px 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--duo-hair);
+    background: #fff;
+  }
+  .duo-chal .match-card .mt { text-align:center; font-size: 12.5px; font-weight: 700; color: #222; margin-bottom: 8px; }
+  .duo-chal .mini-btn {
+    padding: 10px; border-radius: 12px;
+    background: #2FD9D1; color: #0f3a3a;
+    font-weight: 800; font-size: 13px; text-align: center;
+    box-shadow: 0 3px 0 #1BA69E;
+  }
+  .duo-chal .opt-line {
+    padding: 0 14px; margin-top: 10px;
+    font-size: 10.5px; color: var(--duo-ink-soft);
+  }
+  .duo-chal .chips {
+    display: flex; gap: 6px; padding: 6px 14px 0;
+    flex-wrap: wrap;
+  }
+  .duo-chal .chip {
+    padding: 5px 9px; border-radius: 999px; border: 1.5px solid var(--duo-hair);
+    font-size: 10px; font-weight: 700; color: #555;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .duo-chal .chip::before { content: "✓"; color: var(--duo-green); font-weight: 800; }
+  .duo-chal .your {
+    padding: 8px 14px 4px; font-size: 11px; color: var(--duo-ink-soft);
+  }
+  .duo-chal .textarea {
+    margin: 0 14px; padding: 10px 12px;
+    border-radius: 12px; background: #F3F3F3; border: 1.5px solid #E5E5E5;
+    min-height: 58px; font-size: 11.5px; color: #222;
+    line-height: 1.4;
+  }
+  .duo-chal .textarea .caret {
+    display: inline-block; width: 1.5px; height: 11px; background: var(--duo-blue);
+    vertical-align: -2px; margin-left: 1px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .duo-chal .bottom-row {
+    margin-top: auto;
+    padding: 8px 14px 14px;
+    border-top: 1.5px solid #EEE;
+    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px;
+  }
+  .duo-chal .reward .l { font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em; color: var(--duo-orange); }
+  .duo-chal .reward .v { font-size: 14px; font-weight: 800; color: var(--duo-orange); display: inline-flex; align-items: center; gap: 3px; }
+  .duo-chal .submit {
+    background: var(--duo-green); color: #fff;
+    padding: 11px 12px; border-radius: 14px;
+    font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+    text-align: center;
+    box-shadow: 0 3px 0 var(--duo-green-dark);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* ---- JOURNEY (skill tree) ---- */
+  .duo-journey { flex: 1; display: flex; flex-direction: column; background: #fff; }
+  .duo-journey .topstats {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 58px 14px 8px;
+  }
+  .duo-journey .stat-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 999px;
+    border: 1.5px solid var(--duo-hair); background: #fff;
+    font-size: 12.5px; font-weight: 800; color: #222;
+  }
+  .duo-journey .banner {
+    margin: 8px 14px 0;
+    padding: 12px 14px;
+    border-radius: 18px;
+    background: var(--duo-green);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--duo-green-dark);
+  }
+  .duo-journey .banner .t {
+    display: inline-block;
+    padding: 3px 9px; border-radius: 999px;
+    background: rgba(255,255,255,0.28);
+    font-size: 9px; font-weight: 800; letter-spacing: 0.12em;
+  }
+  .duo-journey .banner .h { margin-top: 6px; font-size: 17px; font-weight: 800; line-height: 1.15; }
+  .duo-journey .banner .prog {
+    margin-top: 8px; height: 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.35); overflow: hidden; position: relative;
+  }
+  .duo-journey .banner .prog::after {
+    content: ""; position: absolute; inset: 0 30% 0 0;
+    background: #fff; border-radius: 999px;
+  }
+  .duo-journey .banner .pct {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    font-size: 10px; font-weight: 800; color: var(--duo-green-dark);
+    background: #fff; padding: 1px 6px; border-radius: 999px;
+    z-index: 2;
+  }
+  .duo-journey .tree {
+    flex: 1; position: relative; margin-top: 12px;
+  }
+  .duo-journey .spine {
+    position: absolute; left: 50%; top: 20px; bottom: 58px;
+    width: 6px; margin-left: -3px;
+    background: #E5E5E5; border-radius: 999px;
+  }
+  .duo-journey .node {
+    position: absolute; left: 50%;
+    width: 58px; height: 54px;
+    display: grid; place-items: center;
+    color: #fff; font-size: 22px; font-weight: 800;
+    z-index: 2;
+  }
+  .duo-journey .node.n1 { top: 6px;   transform: translateX(-110%); }
+  .duo-journey .node.n2 { top: 82px;  transform: translateX(10%); }
+  .duo-journey .node.n3 { top: 162px; transform: translateX(-50%); }
+  .duo-journey .node .circle {
+    width: 58px; height: 54px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .duo-journey .node.done .circle { background: var(--duo-green); box-shadow: 0 5px 0 var(--duo-green-dark); }
+  .duo-journey .node.sparkle .circle { background: var(--duo-green); box-shadow: 0 5px 0 var(--duo-green-dark); }
+  .duo-journey .node.now .circle { background: var(--duo-gold); box-shadow: 0 5px 0 #C89A00; }
+  .duo-journey .node .start-pill {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    padding: 4px 10px; border-radius: 8px;
+    background: #fff; border: 1.5px solid var(--duo-hair);
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; color: var(--duo-green-dark);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+    white-space: nowrap;
+  }
+  .duo-journey .tabbar {
+    margin-top: auto;
+    border-top: 1.5px solid #EEE;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 8px 0 10px;
+  }
+  .duo-journey .tabbar .tab {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10.5px; font-weight: 700; color: #B0B0B0;
+  }
+  .duo-journey .tabbar .tab.on { color: var(--duo-green-dark); }
+  .duo-journey .tabbar .ico {
+    width: 22px; height: 22px; display: grid; place-items: center;
+  }
+
+  /* ---- STREAK / SOCIAL ---- */
+  .duo-streak { flex: 1; display: flex; flex-direction: column; background: #fff; }
+  .duo-streak .tabs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    margin-top: 96px; border-bottom: 1.5px solid #EEE;
+  }
+  .duo-streak .tabs .t {
+    padding: 10px 0; text-align: center;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #B0B0B0;
+    position: relative;
+  }
+  .duo-streak .tabs .t.on { color: var(--duo-green-dark); }
+  .duo-streak .tabs .t.on::after {
+    content: ""; position: absolute; left: 20%; right: 20%; bottom: -1.5px; height: 3px;
+    background: var(--duo-green-dark); border-radius: 2px;
+  }
+  .duo-streak .close {
+    position: absolute; left: 18px; top: 52px;
+    font-size: 20px; color: #222; font-weight: 600;
+  }
+  .duo-streak .headline {
+    position: absolute; top: 52px; left: 0; right: 0; text-align: center;
+    font-size: 16px; font-weight: 800; color: #222;
+    line-height: 38px;
+  }
+  .duo-streak .hero {
+    margin: 10px 14px 0;
+    padding: 16px 16px 22px;
+    border-radius: 20px 20px 24px 24px;
+    background: var(--duo-green);
+    color: #fff;
+    position: relative;
+    box-shadow: 0 4px 0 var(--duo-green-dark);
+  }
+  .duo-streak .hero .num { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .duo-streak .hero .lbl { margin-top: 4px; font-size: 18px; font-weight: 800; }
+  .duo-streak .hero .flame {
+    position: absolute; right: 14px; top: 14px;
+    width: 68px; height: 82px;
+  }
+  .duo-streak .note {
+    margin: -12px 20px 0;
+    padding: 12px 14px;
+    background: #fff; border: 1.5px solid #EEE; border-radius: 14px;
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 11.5px; line-height: 1.4; color: #333;
+    position: relative; z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .duo-streak .note .mini-flame {
+    width: 18px; height: 18px; flex: none; margin-top: 1px;
+  }
+  .duo-streak .friends-row {
+    margin: 14px 14px 0;
+    font-size: 13px; font-weight: 800; color: #222;
+  }
+  .duo-streak .friend {
+    display: grid; grid-template-columns: 26px 1fr auto auto;
+    align-items: center; gap: 10px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .duo-streak .friend .rk { color: #B0B0B0; font-weight: 800; font-size: 11.5px; }
+  .duo-streak .friend .nm { color: #222; font-weight: 700; }
+  .duo-streak .friend .days { color: var(--duo-orange); font-weight: 800; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+  .duo-streak .friend.me { background: #F7FFEB; }
+
+  /* ---- COMPARE / IMAGE PROMPTING (light + Duo-styled) ---- */
+  .duo-compare { flex: 1; display: flex; flex-direction: column; background: #fff; }
+  .duo-compare .h {
+    padding: 58px 20px 4px;
+    font-size: 18px; font-weight: 800; color: #222;
+  }
+  .duo-compare .brief {
+    margin: 8px 14px 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--duo-green-bg);
+    border: 1.5px solid #C5EFA3;
+    font-size: 11.5px; color: #2a5010;
+    line-height: 1.4;
+  }
+  .duo-compare .brief .el {
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.12em;
+    color: var(--duo-green-dark);
+    display: block; margin-bottom: 3px;
+  }
+  .duo-compare .grid {
+    margin: 10px 14px 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .duo-compare .tile {
+    aspect-ratio: 3/4; border-radius: 14px;
+    position: relative; overflow: hidden;
+    padding: 7px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    border: 2px solid transparent;
+  }
+  .duo-compare .tile .who {
+    padding: 2px 7px; border-radius: 999px;
+    background: rgba(0,0,0,0.5); color: #fff;
+    font-size: 9.5px; font-weight: 700;
+    align-self: flex-start;
+  }
+  .duo-compare .tile .sc {
+    align-self: flex-end;
+    padding: 3px 8px; border-radius: 999px;
+    background: #fff; color: #222;
+    font-size: 10px; font-weight: 800;
+  }
+  .duo-compare .tile.best { border-color: var(--duo-gold); box-shadow: 0 0 0 2px rgba(255,200,0,0.25); }
+  .duo-compare .tile.best .sc { background: var(--duo-gold); color: #5a4200; }
+  .duo-compare .tile.me { border-color: var(--duo-green); }
+  .duo-compare .tile .crown {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 13px;
+  }
+  .duo-compare .tile.t1 { background: radial-gradient(120% 120% at 20% 0%, #ffd1a0, #ff7a45 45%, #4a1207 100%); }
+  .duo-compare .tile.t2 { background: radial-gradient(120% 120% at 80% 10%, #d6c2ff, #8565ff 55%, #2a1755 100%); }
+  .duo-compare .tile.t3 { background: radial-gradient(120% 120% at 30% 80%, #c6ffd9, #3aa36b 60%, #0a2a1a 100%); }
+  .duo-compare .tile.t4 { background: radial-gradient(120% 120% at 80% 80%, #ffe7a0, #c88a2e 50%, #3a240a 100%); }
+  .duo-compare .tip {
+    margin: 10px 14px 14px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #EAF6FF; border: 1.5px solid #BCE3FB;
+    font-size: 11px; color: #0d4c75; line-height: 1.4;
+  }
+  .duo-compare .tip .lbl {
+    font-weight: 800; color: var(--duo-blue-dark);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="nav-wrap">
+  <nav class="pill" aria-label="Primary">
+    <a class="brand" href="#">
+      <span class="mark" aria-hidden="true"></span>
+      PromptPal
+    </a>
+    <div class="nav-links">
+      <a href="#challenges">Daily Challenges</a>
+      <a href="#journey">Your Journey</a>
+      <a href="#streak">Streaks</a>
+    </div>
+    <a class="btn btn-primary" href="#waitlist">Request Access</a>
+  </nav>
+</div>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="eyebrow">
+        <span class="dot"></span>
+        5-Min Daily Challenges — Now Available on iOS
+      </span>
+
+      <h1 class="hero-title">The Duolingo<br>of <em>AI Prompting</em></h1>
+
+      <p class="hero-sub">
+        95% of people don't know where to start with AI.<br>
+        With PromptPal, no more guesswork needed.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#waitlist">
+          Request Access
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#challenges">How it works</a>
+      </div>
+
+      <div class="integrations" aria-label="Works with">
+        <span class="label">PromptPal works with:</span>
+        <div class="row">
+          <span class="logo chatgpt">
+            <span class="mk">
+              <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+                <rect width="32" height="32" rx="8" fill="#10A37F"/>
+                <path fill="#fff" d="M22.3 14.1a4.5 4.5 0 00-.4-3.7 4.6 4.6 0 00-4.9-2.2 4.5 4.5 0 00-7.7 1.5 4.5 4.5 0 00-3 2.2 4.6 4.6 0 00.6 5.4 4.5 4.5 0 00.4 3.7 4.6 4.6 0 004.9 2.2 4.5 4.5 0 007.7-1.5 4.5 4.5 0 003-2.2 4.6 4.6 0 00-.6-5.4zM17 23.7a3.3 3.3 0 01-2.2-.8l.1-.1 3.7-2.1a.6.6 0 00.3-.5v-5.2l1.5.9v4.3a3.4 3.4 0 01-3.4 3.5zM9.8 20.6a3.3 3.3 0 01-.4-2.2v-.1l3.7 2.1a.6.6 0 00.6 0l4.5-2.6v1.7l-3.8 2.2a3.4 3.4 0 01-4.6-1.1zm-.9-7.6a3.3 3.3 0 011.8-1.5v4.4a.6.6 0 00.3.5l4.5 2.6-1.5.9-3.8-2.2a3.4 3.4 0 01-1.3-4.7zm12.8 3l-4.5-2.6 1.5-.9 3.8 2.2a3.4 3.4 0 01-.5 6.2v-4.4a.6.6 0 00-.3-.5zm1.5-2.3l-.1-.1-3.7-2.2a.6.6 0 00-.6 0L14.3 14V12.3l3.8-2.2a3.4 3.4 0 015 3.6zm-9.7 3.2l-1.5-.9V11.8a3.4 3.4 0 015.6-2.6l-.1.1-3.7 2.1a.6.6 0 00-.3.5zm.8-1.8l2-1.2 2 1.2v2.3l-2 1.2-2-1.2z"/>
+              </svg>
+            </span>
+            ChatGPT
+          </span>
+          <span class="logo claude">
+            <span class="mk">
+              <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+                <g fill="#D97757">
+                  <path d="M16 2.5c.3 3 .6 4.5 1.6 6.8 1 2.4 2 3.6 4.3 5.3-2.3 1.7-3.3 2.9-4.3 5.3-1 2.3-1.3 3.8-1.6 6.8-.3-3-.6-4.5-1.6-6.8-1-2.4-2-3.6-4.3-5.3 2.3-1.7 3.3-2.9 4.3-5.3 1-2.3 1.3-3.8 1.6-6.8z"/>
+                  <path d="M29.5 15.9c-2.4.3-3.6.5-5.4 1.3-1.9.8-2.9 1.6-4.3 3.5-1.3-1.9-2.4-2.7-4.3-3.5-1.8-.8-3-1-5.4-1.3 2.4-.3 3.6-.5 5.4-1.3 1.9-.8 2.9-1.6 4.3-3.5 1.3 1.9 2.4 2.7 4.3 3.5 1.8.8 3 1 5.4 1.3z" opacity=".55"/>
+                </g>
+              </svg>
+            </span>
+            Claude
+          </span>
+          <span class="logo grok">
+            <span class="mk">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="#0b0b0b">
+                <path d="M4 20L14 4h3L7 20H4zm9.5 0l5-8 2 3.2L17.5 20h-4z"/>
+              </svg>
+            </span>
+            Grok
+          </span>
+          <span class="logo sora">
+            <span class="mk">
+              <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="#eae6df" stroke-width="1.4">
+                <circle cx="16" cy="16" r="12.5"/>
+                <path d="M16 3.5c3.5 3 5.5 7.5 5.5 12.5s-2 9.5-5.5 12.5"/>
+                <path d="M16 3.5c-3.5 3-5.5 7.5-5.5 12.5s2 9.5 5.5 12.5"/>
+                <path d="M3.5 16h25"/>
+              </svg>
+            </span>
+            OpenAI<span class="sub">SORA</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Hero phone: the main challenge screen "One Shoot It" -->
+      <div class="hero-stage">
+        <div class="phone" style="transform: rotate(-2deg);">
+          <div class="screen">
+            <div class="notch"></div>
+            <div class="duo">
+              <div class="duo-status"><span>11:20</span><span>•••• 📶 🔋</span></div>
+              <div class="duo-topbar">
+                <div class="duo-x">✕</div>
+                <div class="duo-progress"><div class="fill" style="width: 55%;"></div></div>
+                <div class="duo-heart">❤</div>
+              </div>
+              <div class="duo-gear">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 005 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 5a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 5a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019 9c.38.12.72.34 1 .63"/></svg>
+              </div>
+
+              <div class="duo-chal">
+                <span class="level-pill">LEVEL 1 · CODING</span>
+                <div class="h">One Shoot It</div>
+                <div class="sub">Write a prompt that recreates this button,<br>first try counts.</div>
+
+                <div class="match-card">
+                  <div class="mt">Match This Exactly</div>
+                  <div class="mini-btn">Get Started</div>
+                </div>
+
+                <div class="opt-line">Optimal Length: 12–20 words</div>
+                <div class="chips">
+                  <span class="chip">IDENTITY</span>
+                  <span class="chip">CONTEXT</span>
+                  <span class="chip">CONSTRAINT</span>
+                </div>
+
+                <div class="your">Your Prompt</div>
+                <div class="textarea">Create this button with a pill shaped<span class="caret"></span></div>
+
+                <div class="bottom-row">
+                  <div class="reward">
+                    <div class="l">REWARD</div>
+                    <div class="v">+250 XP ⚡</div>
+                  </div>
+                  <div class="submit">Submit Prompt
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ IMPACT / STATS ============ -->
+  <section id="impact">
+    <div class="wrap">
+      <div class="section-eyebrow"><span>Impact</span></div>
+      <h2 class="section-title">6 minutes a day.<br><em>6 weeks</em> to mastery.</h2>
+      <p class="section-lead">Learn at your own pace. You write your prompt, our AI marks it and gives you feedback then and there — so every 5 minutes actually moves you forward.</p>
+
+      <div class="stats-card">
+        <div class="stat">
+          <div class="num">95%</div>
+          <div class="label">Don't know where to start</div>
+          <div class="desc">Most people still bounce off the blank box. PromptPal gives you the first move.</div>
+        </div>
+        <div class="stat">
+          <div class="num">6<span style="font-size:0.55em;color:var(--ink-dim);">min</span></div>
+          <div class="label">Per daily challenge</div>
+          <div class="desc">One prompt, one piece of AI-graded feedback. That's the whole session.</div>
+        </div>
+        <div class="stat">
+          <div class="num">42</div>
+          <div class="label">Days to fluency</div>
+          <div class="desc">A structured 6-week path from "help, what do I type?" to prompting pro.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURE 1 : Daily Challenges (Your Journey skill tree) ============ -->
+  <section id="challenges" class="feature f-green">
+    <div class="f-grid">
+      <div class="copy fade-up">
+        <span class="badge"><span class="dot" style="background:var(--duo-green); box-shadow:0 0 8px var(--duo-green);"></span>Daily Challenges</span>
+        <h3>5-minute <em>daily challenges</em></h3>
+        <p>Get bite-sized AI prompting challenges delivered through our iOS app every morning. Each takes just 5 minutes — shorter than your coffee. Follow your Journey, unlock levels, climb the coding track.</p>
+        <a class="btn btn-primary" href="#waitlist">Request Access
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="visual fade-up">
+        <div class="phone" style="transform: rotate(3deg);">
+          <div class="screen">
+            <div class="notch"></div>
+            <div class="duo">
+              <div class="duo-status"><span>9:41</span><span>•••• 📶 🔋</span></div>
+              <div class="duo-gear" style="top: 42px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 005 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 5a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 5a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019 9c.38.12.72.34 1 .63"/></svg>
+              </div>
+              <div class="duo-journey">
+                <div class="topstats">
+                  <span class="stat-pill"><span style="color:var(--duo-orange);">🔥</span> 0</span>
+                  <span class="stat-pill"><span style="color:var(--duo-orange);">⚡</span> 800 XP</span>
+                </div>
+
+                <div class="banner">
+                  <span class="t">LEVEL 5 · CODING TRACK</span>
+                  <div class="h">Master the Identity Prompt</div>
+                  <div class="prog"><span class="pct">70%</span></div>
+                </div>
+
+                <div class="tree">
+                  <div class="spine"></div>
+                  <div class="node done n1">
+                    <div class="circle">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+                    </div>
+                  </div>
+                  <div class="node sparkle n2">
+                    <div class="circle">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2zm7 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1zM5 14l1 2.5L8.5 17 6 18l-1 2.5L4 18l-2.5-1L4 16z"/></svg>
+                    </div>
+                  </div>
+                  <div class="node now n3">
+                    <div class="start-pill">START</div>
+                    <div class="circle">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tabbar">
+                  <div class="tab on">
+                    <span class="ico">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 5 6 8 6 13a6 6 0 0012 0c0-2-1-3-2-4 0 1-1 2-2 2 0-3-1-6-2-9z"/></svg>
+                    </span>Quest
+                  </div>
+                  <div class="tab">
+                    <span class="ico">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+                    </span>Rank
+                  </div>
+                  <div class="tab">
+                    <span class="ico">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 8h16l-1.5 11.5a2 2 0 01-2 1.5h-9a2 2 0 01-2-1.5zM8 8V6a4 4 0 018 0v2"/></svg>
+                    </span>Cart
+                  </div>
+                  <div class="tab">
+                    <span class="ico">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 5-6 8-6s7 2 8 6"/></svg>
+                    </span>Profile
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURE 2 : Streaks + Friends ============ -->
+  <section id="streak" class="feature f-orange">
+    <div class="f-grid">
+      <div class="visual fade-up">
+        <div class="phone" style="transform: rotate(-3deg);">
+          <div class="screen">
+            <div class="notch"></div>
+            <div class="duo">
+              <div class="duo-status"><span>9:41</span><span>•••• 📶 🔋</span></div>
+              <div class="duo-streak" style="position:relative;">
+                <div class="close">✕</div>
+                <div class="headline">Streak</div>
+                <div class="duo-gear" style="top: 48px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 005 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 5a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 5a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019 9c.38.12.72.34 1 .63"/></svg>
+                </div>
+
+                <div class="tabs">
+                  <div class="t">PERSONAL</div>
+                  <div class="t on">FRIENDS</div>
+                </div>
+
+                <div class="hero">
+                  <div class="num">472</div>
+                  <div class="lbl">day streak!</div>
+                  <svg class="flame" viewBox="0 0 64 80" aria-hidden="true">
+                    <ellipse cx="32" cy="72" rx="18" ry="5" fill="#FFE0A0"/>
+                    <path d="M32 6c5 10 14 16 14 28a14 14 0 01-28 0c0-6 3-10 6-14-1 4 0 8 4 8 0-8-3-14 4-22z" fill="#FF6B1A"/>
+                    <path d="M32 22c2 6 7 10 7 18a7 7 0 01-14 0c0-4 2-7 4-10 0 3 1 5 3 5 0-4-1-8 0-13z" fill="#FFD86B"/>
+                    <path d="M32 36c1 3 3 5 3 9a3 3 0 11-6 0c0-2 1-4 3-9z" fill="#fff"/>
+                  </svg>
+                </div>
+
+                <div class="note">
+                  <svg class="mini-flame" viewBox="0 0 24 24"><path d="M12 2c2 4 6 6 6 11a6 6 0 01-12 0c0-3 1-5 3-7 0 2 1 3 2 3 0-3-1-5 1-7z" fill="#FF6B1A"/></svg>
+                  <div>Keep your <b>Perfect Streak</b> — Sana, Leo and Mia are still in.</div>
+                </div>
+
+                <div class="friends-row" style="margin-top: 16px; padding-left: 16px;">Friends · Streak leaderboard</div>
+
+                <div class="friend me">
+                  <span class="rk">01</span>
+                  <span class="nm">You</span>
+                  <span class="days">🔥 472</span>
+                  <span style="color:#B0B0B0; font-size:10px; font-weight:800;">WK 42</span>
+                </div>
+                <div class="friend">
+                  <span class="rk">02</span>
+                  <span class="nm">Sana A.</span>
+                  <span class="days">🔥 418</span>
+                  <span style="color:#B0B0B0; font-size:10px; font-weight:800;">WK 38</span>
+                </div>
+                <div class="friend">
+                  <span class="rk">03</span>
+                  <span class="nm">Leo K.</span>
+                  <span class="days">🔥 302</span>
+                  <span style="color:#B0B0B0; font-size:10px; font-weight:800;">WK 29</span>
+                </div>
+                <div class="friend">
+                  <span class="rk">04</span>
+                  <span class="nm">Mia T.</span>
+                  <span class="days">🔥 211</span>
+                  <span style="color:#B0B0B0; font-size:10px; font-weight:800;">WK 21</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="copy fade-up">
+        <span class="badge"><span class="dot" style="background:var(--duo-orange); box-shadow:0 0 8px var(--duo-orange);"></span>Streaks &amp; Friends</span>
+        <h3>Challenge your <em>friends</em></h3>
+        <p>Get scored on your AI prompts and battle other community members on our live leaderboard. Nothing sharpens your prompting like a friend creeping up the ranks — or a 472-day streak on the line.</p>
+        <a class="btn btn-primary" href="#waitlist">Request Access
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM CTA ============ -->
+  <section class="bottom-cta" id="waitlist">
+    <div class="wrap">
+      <span class="eyebrow">
+        <span class="dot"></span>
+        5-Min Challenges — Start for FREE
+      </span>
+      <h2>Better prompts.<br><em>Better results.</em></h2>
+      <p>Become an AI pro with one click. 6 minutes a day, for 6 weeks.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#">
+          Request Access
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 PromptPal. Learn one prompt a day.</div>
+    <div>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
