@@ -645,6 +645,26 @@
     font-weight: 800; color: var(--duo-blue-dark);
   }
 
+  /* ---- LEADERBOARD CARD ---- */
+  .streak-visual { flex-direction: row !important; gap: 20px; align-items: center !important; justify-content: center !important; }
+  .lb-card {
+    background: #fff; border-radius: 20px;
+    padding: 20px 18px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
+    width: 252px; flex: none;
+    font-family: "Geist", system-ui, sans-serif; color: #1a1a1a;
+  }
+  .lb-card .lb-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+  .lb-card .lb-title span { color: #888; font-weight: 600; }
+  .lb-divider { height: 1px; background: #e8e8e8; margin-bottom: 8px; }
+  .lb-row { display: grid; grid-template-columns: 38px 38px 1fr auto; align-items: center; gap: 8px; padding: 7px 0; }
+  .lb-badge { display: flex; justify-content: center; align-items: center; }
+  .lb-plain-rank { font-size: 16px; font-weight: 700; color: #C0C0C0; text-align: center; }
+  .lb-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #fff; flex: none; }
+  .lb-nm { font-size: 13px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-sc { font-size: 14px; font-weight: 800; color: #4B66F5; }
+  @media (max-width: 960px) { .lb-card { display: none; } .streak-visual { flex-direction: column !important; } }
+
 </style>
 </head>
 <body>
@@ -660,7 +680,7 @@
       <a href="#journey">Your Journey</a>
       <a href="#streak">Streaks</a>
     </div>
-    <a class="btn btn-primary" href="#waitlist">Request Access</a>
+    <a class="btn btn-primary" href="https://tally.so/r/3EexYl" target="_blank" rel="noopener noreferrer">Request Access</a>
   </nav>
 </div>
 
@@ -682,7 +702,7 @@
       </p>
 
       <div class="cta-row">
-        <a class="btn btn-primary" href="#waitlist">
+        <a class="btn btn-primary" href="https://tally.so/r/3EexYl" target="_blank" rel="noopener noreferrer">
           Request Access
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
@@ -821,7 +841,7 @@
         <span class="badge"><span class="dot" style="background:var(--duo-green); box-shadow:0 0 8px var(--duo-green);"></span>Daily Challenges</span>
         <h3>5-minute <em>daily challenges</em></h3>
         <p>Get bite-sized AI prompting challenges delivered through our iOS app every morning. Each takes just 5 minutes — shorter than your coffee. Follow your Journey, unlock levels, climb the coding track.</p>
-        <a class="btn btn-primary" href="#waitlist">Request Access
+        <a class="btn btn-primary" href="https://tally.so/r/3EexYl" target="_blank" rel="noopener noreferrer">Request Access
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
       </div>
@@ -899,7 +919,7 @@
   <!-- ============ FEATURE 2 : Streaks + Friends ============ -->
   <section id="streak" class="feature f-orange">
     <div class="f-grid">
-      <div class="visual fade-up">
+      <div class="visual streak-visual fade-up">
         <div class="phone" style="transform: rotate(-3deg);">
           <div class="screen">
             <div class="notch"></div>
@@ -963,12 +983,60 @@
             </div>
           </div>
         </div>
+
+        <!-- Leaderboard card -->
+        <div class="lb-card">
+          <div class="lb-title">Leaderboard <span>(7-day)</span></div>
+          <div class="lb-divider"></div>
+
+          <div class="lb-row">
+            <div class="lb-badge">
+              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#D4AF37"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#B8901A"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">1</text></svg>
+            </div>
+            <div class="lb-av" style="background:#C07A50;">MK</div>
+            <div class="lb-nm">Mohamed Kaddour</div>
+            <div class="lb-sc">+5</div>
+          </div>
+
+          <div class="lb-row">
+            <div class="lb-badge">
+              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#A0A9B4"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#808A95"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">2</text></svg>
+            </div>
+            <div class="lb-av" style="background:#4A6FA5;">MK</div>
+            <div class="lb-nm">Mohammed Khale…</div>
+            <div class="lb-sc">+3</div>
+          </div>
+
+          <div class="lb-row">
+            <div class="lb-badge">
+              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#CD7F32"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#A0622A"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">3</text></svg>
+            </div>
+            <div class="lb-av" style="background:#5BA58A;">NI</div>
+            <div class="lb-nm">Nasiful Islam</div>
+            <div class="lb-sc">+2</div>
+          </div>
+
+          <div class="lb-row">
+            <div class="lb-badge"><div class="lb-plain-rank">4</div></div>
+            <div class="lb-av" style="background:#7B5EA7;">MH</div>
+            <div class="lb-nm">Muhammad Haque</div>
+            <div class="lb-sc">+1</div>
+          </div>
+
+          <div class="lb-row">
+            <div class="lb-badge"><div class="lb-plain-rank">5</div></div>
+            <div class="lb-av" style="background:#C96A8A;">SB</div>
+            <div class="lb-nm">Sabina Begum</div>
+            <div class="lb-sc">+1</div>
+          </div>
+        </div>
+
       </div>
       <div class="copy fade-up">
         <span class="badge"><span class="dot" style="background:var(--duo-orange); box-shadow:0 0 8px var(--duo-orange);"></span>Streaks &amp; Friends</span>
         <h3>Challenge your <em>friends</em></h3>
         <p>Get scored on your AI prompts and battle other community members on our live leaderboard. Nothing sharpens your prompting like a friend creeping up the ranks — or a 472-day streak on the line.</p>
-        <a class="btn btn-primary" href="#waitlist">Request Access
+        <a class="btn btn-primary" href="https://tally.so/r/3EexYl" target="_blank" rel="noopener noreferrer">Request Access
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
       </div>
@@ -985,7 +1053,7 @@
       <h2>Better prompts.<br><em>Better results.</em></h2>
       <p>Become an AI pro with one click. 6 minutes a day, for 6 weeks.</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#">
+        <a class="btn btn-primary" href="https://tally.so/r/3EexYl" target="_blank" rel="noopener noreferrer">
           Request Access
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
