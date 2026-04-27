@@ -650,21 +650,16 @@
   /* ---- LEADERBOARD CARD ---- */
   .streak-visual { flex-direction: row !important; gap: 20px; align-items: center !important; justify-content: center !important; }
   .lb-card {
-    background: #fff; border-radius: 20px;
-    padding: 20px 18px;
+    width: 320px; flex: none;
+    border-radius: 20px;
+    overflow: hidden;
     box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.07);
-    width: 252px; flex: none;
-    font-family: "Geist", system-ui, sans-serif; color: #1a1a1a;
   }
-  .lb-card .lb-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
-  .lb-card .lb-title span { color: #888; font-weight: 600; }
-  .lb-divider { height: 1px; background: #e8e8e8; margin-bottom: 8px; }
-  .lb-row { display: grid; grid-template-columns: 38px 38px 1fr auto; align-items: center; gap: 8px; padding: 7px 0; }
-  .lb-badge { display: flex; justify-content: center; align-items: center; }
-  .lb-plain-rank { font-size: 16px; font-weight: 700; color: #C0C0C0; text-align: center; }
-  .lb-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #fff; flex: none; }
-  .lb-nm { font-size: 13px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lb-sc { font-size: 14px; font-weight: 800; color: #4B66F5; }
+  .lb-card img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
   @media (max-width: 960px) { .lb-card { display: none; } .streak-visual { flex-direction: column !important; } }
 
 </style>
@@ -988,49 +983,7 @@
 
         <!-- Leaderboard card -->
         <div class="lb-card">
-          <div class="lb-title">Leaderboard <span>(7-day)</span></div>
-          <div class="lb-divider"></div>
-
-          <div class="lb-row">
-            <div class="lb-badge">
-              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#D4AF37"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#B8901A"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">1</text></svg>
-            </div>
-            <div class="lb-av" style="background:#C07A50;">MK</div>
-            <div class="lb-nm">Mohamed Kaddour</div>
-            <div class="lb-sc">+5</div>
-          </div>
-
-          <div class="lb-row">
-            <div class="lb-badge">
-              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#A0A9B4"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#808A95"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">2</text></svg>
-            </div>
-            <div class="lb-av" style="background:#4A6FA5;">MK</div>
-            <div class="lb-nm">Mohammed Khale…</div>
-            <div class="lb-sc">+3</div>
-          </div>
-
-          <div class="lb-row">
-            <div class="lb-badge">
-              <svg width="32" height="40" viewBox="0 0 32 40"><circle cx="16" cy="16" r="16" fill="#CD7F32"/><polygon points="9,28 23,28 20,40 16,36 12,40" fill="#A0622A"/><text x="16" y="22" text-anchor="middle" fill="#fff" font-weight="900" font-size="13" font-family="Geist,sans-serif">3</text></svg>
-            </div>
-            <div class="lb-av" style="background:#5BA58A;">NI</div>
-            <div class="lb-nm">Nasiful Islam</div>
-            <div class="lb-sc">+2</div>
-          </div>
-
-          <div class="lb-row">
-            <div class="lb-badge"><div class="lb-plain-rank">4</div></div>
-            <div class="lb-av" style="background:#7B5EA7;">MH</div>
-            <div class="lb-nm">Muhammad Haque</div>
-            <div class="lb-sc">+1</div>
-          </div>
-
-          <div class="lb-row">
-            <div class="lb-badge"><div class="lb-plain-rank">5</div></div>
-            <div class="lb-av" style="background:#C96A8A;">SB</div>
-            <div class="lb-nm">Sabina Begum</div>
-            <div class="lb-sc">+1</div>
-          </div>
+          <img src="./assets/leaderboard-card.png" alt="Leaderboard (7-day) card">
         </div>
 
       </div>
